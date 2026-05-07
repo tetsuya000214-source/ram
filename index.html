@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求人応募フォーム - Netlify完全版</title>
+    <style>
+        :root {
+            --primary-color: #d4418e;
+            --secondary-color: #1a2a6c;
+            --bg-color: #f8fafb;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 40px 30px;
+            box-sizing: border-box;
+        }
+
+        .steps-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .steps-header::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .step-item {
+            width: 32px;
+            height: 32px;
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 2;
+            color: #999;
+        }
+
+        .step-item.active { border-color: var(--primary-color); color: var(--primary-color); background: #fff0f5; }
+        .step-item.completed { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+
+        .step-content { display: none; }
+        .step-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h2 { font-size: 20px; color: var(--secondary-color); margin-bottom: 8px; }
+        p.desc { font-size: 14px; color: #666; margin-bottom: 25px; }
+
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 8px; }
+        .required { background: #ff4d4f; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px; }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .btn-container { display: flex; gap: 15px; margin-top: 30px; }
+        .btn { flex: 1; padding: 15px; border: none; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-next { background-color: var(--primary-color); color: #fff; }
+        .btn-back { background-color: #eee; color: #666; }
+
+        #confirm-data {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 2;
+            margin-bottom: 20px;
+        }
+        #confirm-data div { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        #confirm-data span { font-weight: bold; color: var(--secondary-color); }
+    </style>
+</head>
+<body>
+
+<div class="form-wrapper">
+    <!-- 進捗バー -->
+    <div class="steps-header">
+        <div class="step-item completed">1</div>
+        <div class="step-item active" id="dot2">2</div>
+        <div class="step-item" id="dot3">3</div>
+        <div class="step-item" id="dot4">4</div>
+    </div>
+
+    <!-- Netlify Forms 設定 -->
+    <form name="recruitment-form" method="POST" data-netlify="true" id="mainForm">
+        <!-- 送信成功後の戻り先設定（同じページに戻る設定） -->
+        <input type="hidden" name="success" value="/" />
+        <!-- Netlify 識別用隠しフィールド -->
+        <input type="hidden" name="form-name" value="recruitment-form" />
+
+        <!-- Step 2: 基本情報の入力 -->
+        <div class="step-content active" id="step2">
+            <h2>Step 2: 基本情報の入力</h2>
+            <p class="desc">採用担当よりご連絡するための情報を入力してください。</p>
+            <div class="input-group">
+                <label>お名前<span class="required">必須</span></label>
+                <input type="text" name="name" id="name" placeholder="山田 太郎" required>
+            </div>
+            <div class="input-group">
+                <label>メールアドレス<span class="required">必須</span></label>
+                <input type="email" name="email" id="email" placeholder="example@mail.com" required>
+            </div>
+            <div class="input-group">
+                <label>電話番号<span class="required">必須</span></label>
+                <input type="tel" name="tel" id="tel" placeholder="09012345678" required>
+            </div>
+            <div class="btn-container">
+                <button type="button" class="btn btn-next" onclick="goStep(3)">次へ進む</button>
+            </div>
+        </div>
+
+        <!-- Step 3: 想いの入力 -->
+        <div class="step-content" id="step3">
+            <h2>Step 3: あなたの「想い」</h2>
+            <p class="desc">意気込みやメッセージを自由にご記入ください。</p>
+            <div class="input-group">
+                <label>自己PR・メッセージ</label>
+                <textarea name="message" id="message" rows="6" placeholder="これまでの経験や、この仕事を通じて実現したいことなど、自由にお書きください。"></textarea>
+            </div>
+            <div class="btn-container">
+                <button type="button" class="btn btn-back" onclick="goStep(2)">戻る</button>
+                <button type="button" class="btn btn-next" onclick="showConfirm()">確認画面へ</button>
+            </div>
+        </div>
+
+        <!-- Step 4: 確認画面 -->
+        <div class="step-content" id="step4">
+            <h2>Step 4: 入力内容の確認</h2>
+            <p class="desc">内容に間違いがなければ、以下の内容で応募を完了してください。</p>
+            <div id="confirm-data">
+                <!-- JavaScriptにより内容が挿入されます -->
+            </div>
+            <div class="btn-container">
+                <button type="button" class="btn btn-back" onclick="goStep(3)">戻る</button>
+                <button type="submit" class="btn btn-next">この内容で応募する</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    // ステップ切り替えロジック
+    function goStep(n) {
+        // バリデーション：Step 2からStep 3へ行く時の入力チェック
+        if (n === 3) {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const tel = document.getElementById('tel').value;
+            if (!name || !email || !tel) {
+                alert('必須項目をすべて入力してください。');
+                return;
+            }
+        }
+
+        // 画面の表示切り替え
+        document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
+        document.getElementById('step' + n).classList.add('active');
+        
+        // ヘッダーのドット（進捗）の更新
+        for(let i=2; i<=4; i++){
+            let dot = document.getElementById('dot' + i);
+            if(dot){
+                dot.classList.remove('active', 'completed');
+                if(i < n) dot.classList.add('completed');
+                if(i === n) dot.classList.add('active');
+            }
+        }
+    }
+
+    // 確認画面（Step 4）にデータを表示する処理
+    function showConfirm() {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const tel = document.getElementById('tel').value;
+        const msg = document.getElementById('message').value || "（未入力）";
+
+        const confirmBox = document.getElementById('confirm-data');
+        confirmBox.innerHTML = `
+            <div>お名前: <span>${name}</span></div>
+            <div>メールアドレス: <span>${email}</span></div>
+            <div>電話番号: <span>${tel}</span></div>
+            <div style="border-bottom:none; margin-top:10px;">メッセージ:</div>
+            <div style="background:#fff; padding:10px; border:1px solid #eee; border-radius:5px; white-space:pre-wrap;">${msg}</div>
+        `;
+        goStep(4);
+    }
+</script>
+
+</body>
+</html>
