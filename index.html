@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求人応募フォーム - ステップ式</title>
+    <style>
+        :root {
+            --primary-color: #d4418e;
+            --secondary-color: #1a2a6c;
+            --bg-color: #f8fafb;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 40px 30px;
+            box-sizing: border-box;
+        }
+
+        /* プログレスバー */
+        .steps-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .steps-header::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--border-color);
+            z-index: 1;
+        }
+
+        .step-item {
+            width: 32px;
+            height: 32px;
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 2;
+            color: #999;
+            transition: all 0.3s ease;
+        }
+
+        .step-item.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: #fff0f5;
+        }
+
+        .step-item.completed {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        /* フォームコンテンツ */
+        .step-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            font-size: 20px;
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        p.desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .required {
+            background: #ff4d4f;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* ボタン */
+        .btn-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-next {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-back {
+            background-color: #eee;
+            color: #666;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-wrapper">
+    <!-- ステップ表示 -->
+    <div class="steps-header">
+        <div class="step-item completed" id="s1">1</div>
+        <div class="step-item active" id="s2">2</div>
+        <div class="step-item" id="s3">3</div>
+        <div class="step-item" id="s4">4</div>
+    </div>
+
+    <form id="multiStepForm">
+        <!-- Step 1 (Hidden) -->
+        <div class="step-content" id="step1">
+            <!-- 前のステップの内容は省略 -->
+        </div>
+
+        <!-- Step 2: 基本情報の入力 (初期表示) -->
+        <div class="step-content active" id="step2">
+            <h2>基本情報の入力</h2>
+            <p class="desc">採用担当よりご連絡するための情報を入力してください。</p>
+            
+            <div class="input-group">
+                <label>お名前<span class="required">必須</span></label>
+                <input type="text" placeholder="例：山田 太郎" required>
+            </div>
+
+            <div class="input-group">
+                <label>メールアドレス<span class="required">必須</span></label>
+                <input type="email" placeholder="例：sample@example.com" required>
+            </div>
+
+            <div class="input-group">
+                <label>電話番号<span class="required">必須</span></label>
+                <input type="tel" placeholder="例：09012345678" required>
+            </div>
+
+            <div class="btn-container">
+                <button type="button" class="btn btn-back" onclick="alert('前のステップへ戻ります')">戻る</button>
+                <button type="button" class="btn btn-next" onclick="nextStep(3)">次へ進む</button>
+            </div>
+        </div>
+
+        <!-- Step 3: 想いの入力 -->
+        <div class="step-content" id="step3">
+            <h2>あなたの「想い」</h2>
+            <p class="desc">これまでの経験や、挑戦したいことについて教えてください。</p>
+            
+            <div class="input-group">
+                <label>メッセージ・自己PR</label>
+                <textarea rows="6" placeholder="自由にご記入ください。"></textarea>
+            </div>
+
+            <div class="btn-container">
+                <button type="button" class="btn btn-back" onclick="nextStep(2)">戻る</button>
+                <button type="button" class="btn btn-next" onclick="nextStep(4)">確認画面へ</button>
+            </div>
+        </div>
+
+        <!-- Step 4: 確認 (簡易表示) -->
+        <div class="step-content" id="step4">
+            <h2>入力内容の確認</h2>
+            <p class="desc">内容に間違いがなければ、送信ボタンを押してください。</p>
+            <div style="padding: 20px; background: #f9f9f9; border-radius: 8px; margin-bottom: 20px; font-size: 14px;">
+                入力された内容が表示されます...
+            </div>
+            <div class="btn-container">
+                <button type="button" class="btn btn-back" onclick="nextStep(3)">戻る</button>
+                <button type="submit" class="btn btn-next">この内容で応募する</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function nextStep(stepNumber) {
+        // 全ステップを非表示に
+        document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+        // 対象ステップを表示
+        document.getElementById('step' + stepNumber).classList.add('active');
+        
+        // ヘッダーのステータス更新
+        document.querySelectorAll('.step-item').forEach((el, index) => {
+            const idx = index + 1;
+            el.classList.remove('active', 'completed');
+            if (idx < stepNumber) el.classList.add('completed');
+            if (idx === stepNumber) el.classList.add('active');
+        });
+    }
+
+    document.getElementById('multiStepForm').onsubmit = function(e) {
+        e.preventDefault();
+        alert('応募が完了しました。ありがとうございます！');
+    };
+</script>
+
+</body>
+</html>
